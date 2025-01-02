@@ -1,0 +1,73 @@
+# Python virtual environment
+.venv/
+venv/
+ENV/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Model files and data
+*.pkl
+*.h5
+*.model
+*.bin
+*.vec
+*.npy
+*.npz
+confusion_matrix.png
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Large data files
+*.csv
+*.xlsx
+*.parquet
+
+# Keep project data
+!yorumlar.json
+
+# Dependencies
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Documentation
+docs/_build/
+site/
+
+# Local development settings
+*.local
+.python-version 

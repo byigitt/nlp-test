@@ -1,0 +1,74 @@
+# Python Environment Setup Rules and Best Practices
+
+## Issues Encountered & Solutions
+
+1. Python Version Compatibility
+   - Initial Error: numpy 1.24.3 failed to install on Python 3.12
+   - Solution: Use newer versions of packages compatible with Python 3.12
+   - Lesson: Always specify Python version in initial prompts
+
+2. Package Installation Method
+   - Initial Error: pip installation issues with older package versions
+   - Solution: Switched to uv package manager
+   - Steps Required:
+     a. Install uv
+     b. Create virtual environment first
+     c. Activate virtual environment
+     d. Then install packages
+
+3. Virtual Environment
+   - Initial Error: "No virtual environment found"
+   - Solution: Must create and activate venv before installing packages
+   - Command sequence:
+     ```
+     uv venv
+     .venv\Scripts\activate
+     uv pip install -r requirements.txt
+     ```
+
+## Best Practices for Future Prompts
+
+1. System Information
+   - Always mention Python version
+   - Specify package manager preference (pip/uv/conda)
+   - Indicate OS version
+
+2. Dependencies
+   - Prefer using newer package versions
+   - Use '>=' instead of '==' for better compatibility
+   - Consider CPU/GPU specific packages (e.g., tensorflow-cpu vs tensorflow)
+
+3. Virtual Environment
+   - Always create a virtual environment first
+   - Activate before installing packages
+   - Use consistent venv naming (.venv)
+
+## Project Structure Guidelines
+
+1. Requirements File
+   - Use requirements.txt for pip/uv
+   - Include version constraints
+   - Separate dev and prod dependencies if needed
+
+2. Environment Setup
+   - Document environment setup steps
+   - Include activation commands
+   - List any system-specific requirements
+
+## Common Pitfalls to Avoid
+
+1. Package Versioning
+   - Don't use outdated package versions
+   - Check Python version compatibility
+   - Verify package interdependencies
+
+2. Installation Order
+   - Create virtual environment first
+   - Activate environment
+   - Then install packages
+   - Install core dependencies before optional ones
+
+3. System Path
+   - Ensure package manager is in system PATH
+   - Verify virtual environment activation
+   - Check for conflicting Python installations 
