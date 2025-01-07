@@ -21,12 +21,22 @@ def load_data(file_path):
     return pd.DataFrame(all_reviews)
 
 def clean_text(text):
-    """Basic text cleaning function."""
+    """Enhanced text cleaning function."""
     if not isinstance(text, str):
         return ""
     
     # Convert to lowercase
     text = text.lower()
+    
+    # Replace common Turkish characters
+    text = text.replace('ı', 'i').replace('ğ', 'g').replace('ş', 's') \
+               .replace('ü', 'u').replace('ö', 'o').replace('ç', 'c')
+    
+    # Remove URLs
+    text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
+    
+    # Remove email addresses
+    text = re.sub(r'\S+@\S+', '', text)
     
     # Remove special characters and digits
     text = re.sub(r'[^\w\s]', ' ', text)
@@ -34,6 +44,9 @@ def clean_text(text):
     
     # Remove extra whitespace
     text = ' '.join(text.split())
+    
+    # Remove short words (likely not meaningful)
+    text = ' '.join([w for w in text.split() if len(w) > 2])
     
     return text
 
@@ -47,7 +60,7 @@ def assign_sentiment(rating):
         return 'positive'
 
 def prepare_dataset(file_path='yorumlar.json'):
-    """Prepare the complete dataset."""
+    """Prepare the complete dataset with balanced classes."""
     # Load data
     df = load_data(file_path)
     
@@ -57,8 +70,23 @@ def prepare_dataset(file_path='yorumlar.json'):
     # Assign sentiment labels
     df['sentiment'] = df['rating'].apply(assign_sentiment)
     
-    # Split into train and test sets
-    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+    # Remove empty texts
+    df = df[df['cleaned_text'].str.len() > 0]
+    
+    # Balance classes (optional, uncomment if needed)
+    # min_class_size = df['sentiment'].value_counts().min()
+    # df = pd.concat([
+    #     df[df['sentiment'] == label].sample(min_class_size, random_state=42)
+    #     for label in df['sentiment'].unique()
+    # ])
+    
+    # Split into train and test sets with stratification
+    train_df, test_df = train_test_split(
+        df, 
+        test_size=0.2, 
+        random_state=42,
+        stratify=df['sentiment']
+    )
     
     return train_df, test_df
 
