@@ -71,3 +71,6 @@ site/
 # Local development settings
 *.local
 .python-version 
+
+# cursor
+.cursorrules
