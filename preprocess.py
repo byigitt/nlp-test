@@ -42,11 +42,18 @@ def clean_text(text):
     text = re.sub(r'[^\w\s]', ' ', text)
     text = re.sub(r'\d+', '', text)
     
+    # Add: Remove repeated characters (e.g., çokkk -> çok)
+    text = re.sub(r'(.)\1+', r'\1\1', text)
+    
+    # Add: Remove specific product references
+    text = re.sub(r'\b(ürün|urun)\b', '', text)
+    
     # Remove extra whitespace
     text = ' '.join(text.split())
     
-    # Remove short words (likely not meaningful)
-    text = ' '.join([w for w in text.split() if len(w) > 2])
+    # Remove short words but keep important ones
+    important_words = {'yok', 'iyi', 'kötü', 'eh'}
+    text = ' '.join([w for w in text.split() if len(w) > 2 or w in important_words])
     
     return text
 
@@ -60,8 +67,7 @@ def assign_sentiment(rating):
         return 'positive'
 
 def prepare_dataset(file_path='yorumlar.json'):
-    """Prepare the complete dataset with balanced classes."""
-    # Load data
+    """Prepare the complete dataset with improved balancing."""
     df = load_data(file_path)
     
     # Clean text
@@ -73,19 +79,27 @@ def prepare_dataset(file_path='yorumlar.json'):
     # Remove empty texts
     df = df[df['cleaned_text'].str.len() > 0]
     
-    # Balance classes (optional, uncomment if needed)
-    # min_class_size = df['sentiment'].value_counts().min()
-    # df = pd.concat([
-    #     df[df['sentiment'] == label].sample(min_class_size, random_state=42)
-    #     for label in df['sentiment'].unique()
-    # ])
+    # Improved balancing strategy
+    min_class_size = df['sentiment'].value_counts().min()
+    max_samples = min_class_size * 3  # Allow up to 3x the minimum class size
     
-    # Split into train and test sets with stratification
+    balanced_df = pd.concat([
+        df[df['sentiment'] == label].sample(
+            n=min(len(df[df['sentiment'] == label]), max_samples),
+            random_state=42
+        )
+        for label in df['sentiment'].unique()
+    ])
+    
+    # Add text length as a feature
+    balanced_df['text_length'] = balanced_df['cleaned_text'].str.len()
+    
+    # Split with stratification
     train_df, test_df = train_test_split(
-        df, 
+        balanced_df, 
         test_size=0.2, 
         random_state=42,
-        stratify=df['sentiment']
+        stratify=balanced_df['sentiment']
     )
     
     return train_df, test_df
