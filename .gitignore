@@ -21,7 +21,16 @@ build/
 *.vec
 *.npy
 *.npz
+*.safetensors
 confusion_matrix.png
+training_history.json
+training_params.json
+
+# Keep model files
+!best_model/
+!best_model/*.json
+!best_model/*.txt
+!best_model/*.safetensors
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -71,6 +80,15 @@ site/
 # Local development settings
 *.local
 .python-version 
+
+# Temporary files
+*.temp
+*.tmp
+*.bak
+
+# Transformer cache
+.cache/
+.transformers/
 
 # cursor
 .cursorrules
