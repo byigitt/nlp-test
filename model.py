@@ -26,13 +26,18 @@ def create_model():
     """Create an optimized sentiment classification pipeline."""
     return Pipeline([
         ('tfidf', TfidfVectorizer(
-            max_features=5000,  # Reduced from 10000
-            ngram_range=(1, 2),
+            max_features=10000,  # Increased from 5000
+            ngram_range=(1, 3),  # Changed from (1,2) to capture longer phrases
             min_df=2,
-            max_df=0.95
+            max_df=0.95,
+            analyzer='char_wb',  # Add character n-grams for Turkish
+            strip_accents='unicode'
         )),
         ('classifier', RandomForestClassifier(
-            n_estimators=100,  # Reduced from 200
+            n_estimators=200,    # Increased from 100
+            max_depth=30,        # Increased from 20
+            min_samples_split=2,
+            class_weight='balanced',
             random_state=42,
             n_jobs=-1,
             verbose=0
