@@ -89,6 +89,7 @@ site/
 # Transformer cache
 .cache/
 .transformers/
+best_model/
 
 # cursor
 .cursorrules
