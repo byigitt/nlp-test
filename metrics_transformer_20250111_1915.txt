@@ -1,0 +1,21 @@
+Model Evaluation - 20250111_1915
+==================================================
+Overall Accuracy: 0.803
+
+Class-wise Performance:
+
+NEGATIVE:
+Precision: 0.797
+Recall: 0.792
+F1-Score: 0.795
+
+NEUTRAL:
+Precision: 0.509
+Recall: 0.484
+F1-Score: 0.496
+
+POSITIVE:
+Precision: 0.897
+Recall: 0.915
+F1-Score: 0.906
+

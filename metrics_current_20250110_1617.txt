@@ -1,0 +1,20 @@
+Model Evaluation - 20250110_1617
+==================================================
+Overall Accuracy: 0.720
+
+Class-wise Performance:
+
+POSITIVE:
+Precision: 0.797
+Recall: 0.872
+F1-Score: 0.833
+
+NEGATIVE:
+Precision: 0.643
+Recall: 0.767
+F1-Score: 0.700
+
+NEUTRAL:
+Precision: 0.470
+Recall: 0.189
+F1-Score: 0.270
