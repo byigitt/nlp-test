@@ -1,40 +1,60 @@
 from model import predict_sentiment
 from preprocess import clean_text, prepare_dataset
 import pandas as pd
+import numpy as np
 from sklearn.metrics import classification_report, confusion_matrix
 import seaborn as sns
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import joblib
 
-def analyze_sentiment(text):
-    """Analyze the sentiment of a given text."""
-    cleaned = clean_text(text)
-    sentiment = predict_sentiment(cleaned)
-    return sentiment
-
-def bulk_test(n_samples=10000):
-    """Test the model on a large number of reviews."""
-    print(f"\nTesting {n_samples} reviews...")
+def analyze_sentiment_batch(texts, model=None, batch_size=100):
+    """Analyze sentiments for a batch of texts."""
+    if model is None:
+        model = joblib.load('sentiment_model.pkl')
     
-    # Get test data
+    # Clean all texts at once using vectorization
+    cleaned_texts = pd.Series(texts).apply(clean_text)
+    
+    # Predict in batches
+    predictions = []
+    for i in range(0, len(cleaned_texts), batch_size):
+        batch = cleaned_texts[i:i + batch_size]
+        predictions.extend(model.predict(batch))
+    
+    return predictions
+
+def test_model(n_samples=10000):
+    """Test the model with sample reviews and generate metrics."""
+    print("Loading model and test data...")
+    model = joblib.load('sentiment_model.pkl')
     _, test_df = prepare_dataset()
     
-    # Sample n reviews
-    if len(test_df) > n_samples:
-        test_df = test_df.sample(n=n_samples, random_state=42)
-    else:
-        print(f"Note: Only {len(test_df)} reviews available in test set")
+    # Sample reviews for individual testing
+    sample_reviews = [
+        "Ürün harika, çok memnun kaldım",
+        "Fiyatına göre idare eder",
+        "Berbat bir ürün, asla tavsiye etmem"
+    ]
     
-    # Predict sentiments
-    predictions = []
-    for text in tqdm(test_df['cleaned_text'], desc="Analyzing reviews"):
-        predictions.append(predict_sentiment(text))
+    print("\nTesting individual reviews:")
+    print("-" * 50)
+    for review in sample_reviews:
+        sentiment = predict_sentiment(review)
+        print(f"\nReview: {review}")
+        print(f"Sentiment: {sentiment}")
     
-    # Calculate and display metrics
-    print("\nClassification Report:")
-    print(classification_report(test_df['sentiment'], predictions))
+    # Batch testing on test set
+    n_samples = min(n_samples, len(test_df))
+    print(f"\nTesting {n_samples} reviews...")
+    if n_samples < len(test_df):
+        test_df = test_df.sample(n_samples, random_state=42)
     
-    # Create confusion matrix
+    print("Analyzing reviews in batches...")
+    predictions = analyze_sentiment_batch(test_df['cleaned_text'].values, model, batch_size=100)
+    
+    # Generate and save confusion matrix
+    print("\nGenerating confusion matrix...")
     cm = confusion_matrix(test_df['sentiment'], predictions)
     plt.figure(figsize=(10, 8))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
@@ -46,36 +66,11 @@ def bulk_test(n_samples=10000):
     plt.savefig('confusion_matrix.png')
     plt.close()
     
-    # Sample misclassified reviews
-    results_df = pd.DataFrame({
-        'text': test_df['text'],
-        'true_sentiment': test_df['sentiment'],
-        'predicted_sentiment': predictions
-    })
+    # Print classification report
+    print("\nClassification Report:")
+    print(classification_report(test_df['sentiment'], predictions))
     
-    misclassified = results_df[results_df['true_sentiment'] != results_df['predicted_sentiment']]
-    if len(misclassified) > 0:
-        print("\nSample of Misclassified Reviews:")
-        sample_size = min(5, len(misclassified))
-        for _, row in misclassified.sample(n=sample_size).iterrows():
-            print(f"\nText: {row['text']}")
-            print(f"True Sentiment: {row['true_sentiment']}")
-            print(f"Predicted Sentiment: {row['predicted_sentiment']}")
+    print("\nConfusion matrix saved as 'confusion_matrix.png'")
 
 if __name__ == "__main__":
-    # Test individual reviews
-    test_reviews = [
-        "Ürün harika, çok memnun kaldım",
-        "Fiyatına göre idare eder",
-        "Berbat bir ürün, asla tavsiye etmem"
-    ]
-    
-    print("Testing individual reviews:")
-    print("-" * 50)
-    for review in test_reviews:
-        sentiment = analyze_sentiment(review)
-        print(f"\nReview: {review}")
-        print(f"Sentiment: {sentiment}")
-    
-    # Run bulk testing
-    bulk_test(10000) 
+    test_model() 
